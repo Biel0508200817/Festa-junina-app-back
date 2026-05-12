@@ -24,6 +24,7 @@ const supabase = createClient(
 // ================= LOGGER =================
 
 app.use((req, res, next) => {
+
     console.log(
         `[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`
     );
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 // ================= TESTE =================
 
 app.get('/', (req, res) => {
+
     res.json({
         status: 'API online'
     });
@@ -41,7 +43,7 @@ app.get('/', (req, res) => {
 
 // ================= ROTAS =================
 
-// 1. LISTAR TODOS OS ITENS
+// LISTAR ITENS
 app.get('/api/itens_festa', async (req, res) => {
 
     const { data, error } = await supabase
@@ -49,6 +51,7 @@ app.get('/api/itens_festa', async (req, res) => {
         .select('*');
 
     if (error) {
+
         return res.status(500).json({
             error: error.message
         });
@@ -57,7 +60,7 @@ app.get('/api/itens_festa', async (req, res) => {
     res.json(data);
 });
 
-// 2. LISTAR CATEGORIAS
+// LISTAR CATEGORIAS
 app.get('/api/categorias', async (req, res) => {
 
     const { data, error } = await supabase
@@ -65,6 +68,7 @@ app.get('/api/categorias', async (req, res) => {
         .select('*');
 
     if (error) {
+
         return res.status(500).json({
             error: error.message
         });
@@ -73,7 +77,7 @@ app.get('/api/categorias', async (req, res) => {
     res.json(data);
 });
 
-// 3. BUSCAR ITENS POR CATEGORIA
+// BUSCAR POR CATEGORIA
 app.get('/api/itens_festa/categorias/:nomeCategoria', async (req, res) => {
 
     const { nomeCategoria } = req.params;
@@ -84,6 +88,7 @@ app.get('/api/itens_festa/categorias/:nomeCategoria', async (req, res) => {
         .ilike('categoria', nomeCategoria);
 
     if (error) {
+
         return res.status(500).json({
             error: error.message
         });
@@ -92,7 +97,7 @@ app.get('/api/itens_festa/categorias/:nomeCategoria', async (req, res) => {
     res.json(data);
 });
 
-// 4. CRIAR ITEM
+// CRIAR ITEM
 app.post('/api/itens_festa', async (req, res) => {
 
     const {
@@ -105,7 +110,7 @@ app.post('/api/itens_festa', async (req, res) => {
     if (!nome || preco == null || !categoria) {
 
         return res.status(400).json({
-            message: 'Nome, preço e categoria são obrigatórios.'
+            error: 'Nome, preço e categoria são obrigatórios.'
         });
     }
 
@@ -122,6 +127,7 @@ app.post('/api/itens_festa', async (req, res) => {
         .select();
 
     if (error) {
+
         return res.status(500).json({
             error: error.message
         });
@@ -130,7 +136,7 @@ app.post('/api/itens_festa', async (req, res) => {
     res.status(201).json(data[0]);
 });
 
-// 5. ATUALIZAR ITEM
+// ATUALIZAR ITEM
 app.put('/api/itens_festa/:id', async (req, res) => {
 
     const { id } = req.params;
@@ -154,6 +160,7 @@ app.put('/api/itens_festa/:id', async (req, res) => {
         .select();
 
     if (error) {
+
         return res.status(500).json({
             error: error.message
         });
@@ -169,7 +176,7 @@ app.put('/api/itens_festa/:id', async (req, res) => {
     res.json(data[0]);
 });
 
-// 6. DELETAR ITEM
+// DELETAR ITEM
 app.delete('/api/itens_festa/:id', async (req, res) => {
 
     const id = parseInt(req.params.id, 10);
@@ -226,8 +233,18 @@ app.use((err, req, res, next) => {
     });
 });
 
-// ================= SERVIDOR =================
-
-
+// ================= EXPORT =================
 
 module.exports = app;
+
+// ================= LOCAL =================
+
+if (process.env.NODE_ENV !== 'production') {
+
+    const PORT = process.env.PORT || 3000;
+
+    app.listen(PORT, () => {
+
+        console.log(`Servidor rodando na porta ${PORT}`);
+    });
+}
