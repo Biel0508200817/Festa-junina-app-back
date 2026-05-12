@@ -25,12 +25,7 @@ app.use((req, res, next) => {
 
 // ================= TESTE =================
 
-app.get('/', (req, res) => {
 
-    res.json({
-        status: 'API online'
-    });
-});
 
 // ================= ROTAS =================
 
