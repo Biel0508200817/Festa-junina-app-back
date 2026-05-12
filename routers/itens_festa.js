@@ -9,7 +9,7 @@ router.get('/', async (req, res, next) => {
     const { categoriaId } = req.query;
 
     try {
-        let { data: produtos, error } = await db
+        let { data: itens_festa, error } = await db
             .from('itens_festa')
             .select('*');
 
@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
 
         // Filtro opcional por categoria
         if (categoriaId) {
-            produtos = produtos.filter(
+            itens_festa = itens_festa.filter(
                 p => p.categoriaId === parseInt(categoriaId)
             );
         }
