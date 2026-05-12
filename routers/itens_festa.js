@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../data/supabase'); // Ajustado para o caminho correto
+const db = require('../data/supabase');
 
-// Listar produtos (com filtro opcional por categoriaId via Query String)
-router.get('/', async (req, res) => {
+// ============================
+// LISTAR TODOS OS PRODUTOS
+// ============================
+router.get('/', async (req, res, next) => {
     const { categoriaId } = req.query;
 
     try {
@@ -13,17 +15,23 @@ router.get('/', async (req, res) => {
 
         if (error) throw error;
 
+        // Filtro opcional por categoria
         if (categoriaId) {
-            produtos = produtos.filter(p => p.categoriaId === parseInt(categoriaId));
+            produtos = produtos.filter(
+                p => p.categoriaId === parseInt(categoriaId)
+            );
         }
 
         res.json(produtos);
+
     } catch (error) {
         next(error);
     }
 });
 
-// Buscar um único produto por ID
+// ============================
+// BUSCAR PRODUTO POR ID
+// ============================
 router.get('/:id', async (req, res, next) => {
     try {
         const { data: produto, error } = await db
@@ -35,66 +43,109 @@ router.get('/:id', async (req, res, next) => {
         if (error) throw error;
 
         res.json(produto);
-    } catch (error) {
-        next(error);
-    }   
-});
 
-// Adicionar novo produto
-router.post('/', async (req, res, next) => {
-    const { categoriaId, nome, descricao, preco, image } = req.body;
-
-    try {
-        const { data, error } = await db
-            .from('itens_festa')
-            .insert([{
-                categoriaId: parseInt(categoriaId),
-                nome,
-                descricao,
-                preco,
-                image
-            }])
-            .select();
-
-        if (error) throw error;
-
-        res.status(201).json(data[0]);
     } catch (error) {
         next(error);
     }
 });
 
-router.put('/:id', async (req, res, next) => {
-    const itens_festaId = parseInt(req.params.id);
-    const { nome, descricao, preco, image } = req.body;
+// ============================
+// ADICIONAR NOVO PRODUTO
+// ============================
+router.post('/', async (req, res, next) => {
+    const {
+        categoriaId,
+        nome,
+        descricao,
+        preco,
+        image
+    } = req.body;
 
     try {
+
+        if (!nome || !preco) {
+            return res.status(400).json({
+                error: 'Nome e preço são obrigatórios'
+            });
+        }
+
+        const { data, error } = await db
+            .from('itens_festa')
+            .insert([
+                {
+                    categoriaId: categoriaId
+                        ? parseInt(categoriaId)
+                        : null,
+                    nome,
+                    descricao,
+                    preco,
+                    image
+                }
+            ])
+            .select();
+
+        if (error) throw error;
+
+        res.status(201).json(data[0]);
+
+    } catch (error) {
+        next(error);
+    }
+});
+
+// ============================
+// ATUALIZAR PRODUTO
+// ============================
+router.put('/:id', async (req, res, next) => {
+
+    const itens_festaId = parseInt(req.params.id);
+
+    const {
+        nome,
+        descricao,
+        preco,
+        image,
+        categoriaId
+    } = req.body;
+
+    try {
+
         const { data, error } = await db
             .from('itens_festa')
             .update({
                 nome,
                 descricao,
                 preco,
-                image
+                image,
+                categoriaId
             })
             .eq('id', itens_festaId)
             .select();
 
         if (error) throw error;
 
+        if (!data.length) {
+            return res.status(404).json({
+                error: 'Produto não encontrado'
+            });
+        }
+
         res.json(data[0]);
+
     } catch (error) {
         next(error);
     }
 });
 
-        
-
-// Remover produto
+// ============================
+// DELETAR PRODUTO
+// ============================
 router.delete('/:id', async (req, res, next) => {
+
     const itens_festaId = parseInt(req.params.id);
 
     try {
+
         const { data, error } = await db
             .from('itens_festa')
             .delete()
@@ -103,7 +154,16 @@ router.delete('/:id', async (req, res, next) => {
 
         if (error) throw error;
 
-        res.json({ message: 'Item de festa deletado com sucesso' });
+        if (!data.length) {
+            return res.status(404).json({
+                error: 'Produto não encontrado'
+            });
+        }
+
+        res.json({
+            message: 'Item de festa deletado com sucesso'
+        });
+
     } catch (error) {
         next(error);
     }
