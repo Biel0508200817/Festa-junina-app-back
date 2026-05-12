@@ -226,4 +226,11 @@ app.use((err, req, res, next) => {
     });
 });
 
+// ================= SERVIDOR =================
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+});
+
 module.exports = app;
