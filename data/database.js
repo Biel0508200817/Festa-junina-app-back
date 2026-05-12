@@ -1,4 +1,4 @@
 
       
 
-module.exports = { categorias, produtos };
+module.exports = { categorias, itens_festa };
