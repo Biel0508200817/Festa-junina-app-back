@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
             );
         }
 
-        res.json(produtos);
+        res.json(itens_festa);
 
     } catch (error) {
         next(error);
