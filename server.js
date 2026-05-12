@@ -1,36 +1,27 @@
 require('dotenv').config();
 
+
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 
-// ================= MIDDLEWARES =================
-
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// ================= SUPABASE =================
-
+// Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-const supabase = createClient(
-    supabaseUrl,
-    supabaseKey
-);
-
-// ================= LOGGER =================
-
+// Logger
 app.use((req, res, next) => {
-
-    console.log(
-        `[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`
-    );
-
+    console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
     next();
 });
+
 
 // ================= TESTE =================
 
